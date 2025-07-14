@@ -77,7 +77,7 @@
             }
         }
 
-        /* Vùng chứa các chấm sáng rơi (giờ là bánh kem/nơ hồng/hộp quà/trái tim) */
+        /* Vùng chứa các chấm sáng rơi (giờ là bánh kem/nơ hồng/hộp quà/bóng bay) */
         #falling-dots-container {
             position: absolute;
             top: 0;
@@ -93,27 +93,33 @@
             position: absolute;
             background-color: transparent; /* Không có màu nền, chỉ hiển thị emoji */
             border-radius: 50%; /* Vẫn giữ để tương thích nếu sau này đổi lại chấm */
-            animation: fall-dots linear infinite; /* Áp dụng animation rơi */
             white-space: nowrap; /* Ngăn emoji bị ngắt dòng */
             font-size: 1.5em; /* Kích thước mặc định cho emoji */
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Hiệu ứng phát sáng nhẹ */
+            animation: fall-dots linear infinite; /* Áp dụng animation rơi */
         }
 
-        /* Keyframes cho animation chấm rơi (giờ là bánh kem/nơ hồng/hộp quà/trái tim) */
+        /* Keyframes cho animation chấm rơi (giờ là bánh kem/nơ hồng/hộp quà/bóng bay) */
         @keyframes fall-dots {
             0% {
                 transform: translateY(-100vh); /* Bắt đầu từ phía trên màn hình */
                 opacity: 0; /* Ban đầu ẩn */
             }
-            10% {
-                opacity: 1; /* Hiện dần */
+            5% { /* Bắt đầu hiện dần nhẹ nhàng */
+                opacity: 0.2;
             }
-            90% {
-                opacity: 1; /* Giữ nguyên độ mờ */
+            20% { /* Đạt độ mờ tối đa mượt mà */
+                opacity: 1;
+            }
+            80% { /* Giữ nguyên độ mờ */
+                opacity: 1;
+            }
+            95% { /* Bắt đầu mờ dần nhẹ nhàng */
+                opacity: 0.2;
             }
             100% {
                 transform: translateY(100vh); /* Rơi xuống dưới màn hình */
-                opacity: 0; /* Mờ dần trước khi reset */
+                opacity: 0; /* Mờ hoàn toàn trước khi reset */
             }
         }
         
@@ -134,6 +140,7 @@
             font-family: 'Dancing Script', cursive;
             color: rgba(255, 255, 255, 0.3); /* Màu trắng mờ */
             font-size: 1.2em; /* Tăng kích thước chữ nhỏ */
+            /* Đã xóa text-shadow để bỏ hiệu ứng neon */
             white-space: nowrap;
             animation: fade-random-text linear infinite; /* Animation mờ dần vào/ra */
         }
@@ -306,7 +313,7 @@
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <!-- Container for falling dots (now cakes and ribbons, gifts, and hearts) -->
+    <!-- Container for falling dots (now cakes and ribbons, gifts, and balloons) -->
     <div id="falling-dots-container"></div>
 
     <!-- Container for random background texts -->
@@ -474,7 +481,7 @@
         // Hàm tạo các biểu tượng rơi (bánh kem, nơ hồng, hộp quà, bóng bay)
         function createFallingDots() {
             const fallingEmojis = ['🎂', '🎀', '🎁', '🎈']; // Biểu tượng bánh kem, nơ hồng, hộp quà, bóng bay
-            const numberOfEmojis = 100; // Số lượng biểu tượng rơi
+            const numberOfEmojis = 30; // Giảm số lượng biểu tượng rơi
 
             for (let i = 0; i < numberOfEmojis; i++) {
                 const emoji = document.createElement('span'); // Sử dụng span cho emoji
@@ -485,7 +492,7 @@
                 emoji.style.fontSize = `${size}em`;
                 emoji.style.left = `${Math.random() * 100}vw`; // Vị trí ngang ngẫu nhiên
                 emoji.style.animationDuration = `${Math.random() * 10 + 5}s`; // Thời lượng rơi từ 5s đến 15s
-                emoji.style.animationDelay = `${Math.random() * 5}s`; // Độ trễ ngẫu nhiên để tạo hiệu ứng không đồng bộ
+                emoji.style.animationDelay = `${Math.random() * 8}s`; // Tăng độ trễ ngẫu nhiên để trải đều thời gian xuất hiện
 
                 fallingDotsContainer.appendChild(emoji);
             }
