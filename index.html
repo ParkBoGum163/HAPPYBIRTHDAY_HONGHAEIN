@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HONG HAE IN</title>
+    <!-- Tải Tailwind CSS để dễ dàng tạo kiểu -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tải font Dancing Script từ Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Đảm bảo HTML và Body chiếm toàn bộ chiều cao và chiều rộng màn hình */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Ngăn cuộn trang */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000; /* Màu đen */
+            display: flex;
+            flex-direction: column; /* Đổi thành column để xếp chữ và phong bì theo chiều dọc */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Hiệu ứng chữ neon chính */
+        #neon-text {
+            font-family: 'Dancing Script', cursive; /* Đã đổi font chữ thành nét bút máy */
+            color: #fff; /* Màu chữ trắng */
+            font-size: 3em; /* Kích thước chữ lớn */
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px; /* Khoảng cách với phong bì */
+            text-shadow: 
+                0 0 10px #FF007F, /* Hồng sáng */
+                0 0 20px #FF007F,
+                0 0 30px #FF007F,
+                0 0 40px #FF007F,
+                0 0 70px #FF007F,
+                0 0 80px #FF007F,
+                0 0 100px #FF007F;
+            animation: neon-blink 2s infinite alternate; /* Animation nhấp nháy chậm */
+            z-index: 15; /* Đảm bảo chữ nằm trên các hiệu ứng nền */
+            white-space: nowrap; /* Ngăn chữ bị ngắt dòng */
+            transition: opacity 1s ease-out; /* Thêm transition cho hiệu ứng mờ dần */
+        }
+
+        /* Lớp để làm mờ chữ neon chính */
+        #neon-text.fade-out-text {
+            opacity: 0; /* Làm cho chữ biến mất */
+            animation: none; /* Dừng animation nhấp nháy để opacity transition hoạt động */
+        }
+
+        @keyframes neon-blink {
+            0%, 100% {
+                opacity: 1;
+                text-shadow: 
+                    0 0 10px #FF007F, 
+                    0 0 20px #FF007F, 
+                    0 0 30px #FF007F, 
+                    0 0 40px #FF007F, 
+                    0 0 70px #FF007F, 
+                    0 0 80px #FF007F, 
+                    0 0 100px #FF007F;
+            }
+            50% {
+                opacity: 0.6; /* Giảm độ mờ */
+                text-shadow: 
+                    0 0 5px #FF007F, 
+                    0 0 10px #FF007F, 
+                    0 0 15px #FF007F; /* Giảm độ sáng */
+            }
+        }
+
+        /* Vùng chứa các chấm sáng rơi (giờ là bánh kem/nơ hồng/hộp quà/trái tim) */
+        #falling-dots-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Cho phép nhấp chuột xuyên qua */
+            z-index: 5; /* Nằm dưới phong bì */
+            overflow: hidden; /* Ngăn cuộn nếu chấm đi ra ngoài */
+        }
+
+        .falling-dot { /* Đổi tên thành falling-emoji để rõ ràng hơn, nhưng giữ nguyên class để không thay đổi quá nhiều */
+            position: absolute;
+            background-color: transparent; /* Không có màu nền, chỉ hiển thị emoji */
+            border-radius: 50%; /* Vẫn giữ để tương thích nếu sau này đổi lại chấm */
+            animation: fall-dots linear infinite; /* Áp dụng animation rơi */
+            white-space: nowrap; /* Ngăn emoji bị ngắt dòng */
+            font-size: 1.5em; /* Kích thước mặc định cho emoji */
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* Hiệu ứng phát sáng nhẹ */
+        }
+
+        /* Keyframes cho animation chấm rơi (giờ là bánh kem/nơ hồng/hộp quà/trái tim) */
+        @keyframes fall-dots {
+            0% {
+                transform: translateY(-100vh); /* Bắt đầu từ phía trên màn hình */
+                opacity: 0; /* Ban đầu ẩn */
+            }
+            10% {
+                opacity: 1; /* Hiện dần */
+            }
+            90% {
+                opacity: 1; /* Giữ nguyên độ mờ */
+            }
+            100% {
+                transform: translateY(100vh); /* Rơi xuống dưới màn hình */
+                opacity: 0; /* Mờ dần trước khi reset */
+            }
+        }
+        
+        /* Vùng chứa các dòng chữ ngẫu nhiên */
+        #random-texts-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 4; /* Nằm dưới các hiệu ứng khác nhưng trên nền */
+            overflow: hidden;
+        }
+
+        .random-text-instance {
+            position: absolute;
+            font-family: 'Dancing Script', cursive;
+            color: rgba(255, 255, 255, 0.3); /* Màu trắng mờ */
+            font-size: 1.2em; /* Tăng kích thước chữ nhỏ */
+            white-space: nowrap;
+            animation: fade-random-text linear infinite; /* Animation mờ dần vào/ra */
+        }
+
+        @keyframes fade-random-text {
+            0% {
+                opacity: 0; /* Bắt đầu mờ */
+            }
+            20% {
+                opacity: 0.3; /* Hiện lên một phần nhẹ nhàng */
+            }
+            80% {
+                opacity: 0.3; /* Giữ nguyên độ mờ */
+            }
+            100% {
+                opacity: 0; /* Mờ hoàn toàn */
+            }
+        }
+
+
+        /* Vùng chứa phong bì */
+        .envelope-container {
+            position: relative;
+            width: 400px; /* Chiều rộng phong bì */
+            height: 250px; /* Chiều cao phong bì */
+            perspective: 1000px; /* Cho hiệu ứng 3D */
+            cursor: pointer;
+            transition: transform 0.8s ease-in-out;
+            transform-style: preserve-3d;
+            z-index: 10; /* Đảm bảo phong bì nằm trên các hiệu ứng nền */
+        }
+
+        /* Lớp mở phong bì */
+        .envelope-container.open {
+            transform: translateY(-50px); /* Nâng phong bì lên một chút khi mở */
+        }
+
+        /* Các phần của phong bì và lá thư */
+        .envelope-front, .envelope-back, .envelope-flap, .letter-content {
+            position: absolute;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.8s ease-in-out;
+            transform-origin: top; /* Điểm xoay của nắp phong bì */
+        }
+
+        .envelope-front {
+            width: 100%;
+            height: 100%;
+            background-color: #FFC0CB; /* Màu hồng phấn */
+            z-index: 2;
+        }
+
+        .envelope-back {
+            width: 100%;
+            height: 100%;
+            background-color: #FFC0CB; /* Màu hồng phấn */
+            z-index: 1;
+        }
+
+        .envelope-flap {
+            width: 100%;
+            height: 125px; /* Một nửa chiều cao phong bì */
+            background-color: #FFB6C1; /* Màu hồng đậm hơn một chút cho nắp */
+            top: 0;
+            left: 0;
+            z-index: 3;
+            transform-origin: top;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            clip-path: polygon(0 0, 100% 0, 50% 100%); /* Tạo hình tam giác cho nắp */
+            transform: rotateX(0deg); /* Trạng thái ban đầu: đóng */
+        }
+
+        /* Hiệu ứng nắp phong bì mở ra */
+        .envelope-container.open .envelope-flap {
+            transform: rotateX(-180deg); /* Mở: nắp xoay ngược */
+            z-index: 0; /* Di chuyển nắp ra phía sau khi mở */
+        }
+
+        .letter-content {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            background-color: #FFFFFF; /* Màu trắng cho lá thư */
+            top: 5%;
+            left: 5%;
+            padding: 15px; /* Giảm padding để có thêm không gian */
+            box-sizing: border-box;
+            opacity: 0; /* Ban đầu ẩn */
+            transform: translateY(50px) scale(0.9); /* Bắt đầu hơi thấp và nhỏ hơn */
+            z-index: 1; /* Nằm sau nắp khi đóng */
+            color: #333;
+            text-align: left; /* Căn trái nội dung tổng thể */
+            line-height: 1.5; /* Điều chỉnh line-height */
+            font-size: 0.85em; /* Giảm cỡ chữ */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex; /* Sử dụng flexbox */
+            flex-direction: column;
+            /* Bỏ justify-content và align-items để nội dung bắt đầu từ trên cùng */
+            overflow-y: auto; /* Cho phép cuộn nếu nội dung dài */
+        }
+
+        /* Lá thư xuất hiện khi phong bì mở */
+        .envelope-container.open .letter-content {
+            opacity: 1; /* Hiển thị hoàn toàn */
+            transform: translateY(0) scale(1); /* Di chuyển về vị trí và kích thước ban đầu */
+            z-index: 4; /* Nằm trên cùng khi mở */
+            transition-delay: 0.4s; /* Trì hoãn xuất hiện cho đến khi nắp mở */
+        }
+
+        /* Kiểu chữ cho nội dung lá thư */
+        .message-content-paragraph {
+            margin-bottom: 0.75rem; /* Giảm khoảng cách giữa các đoạn */
+            text-align: center; /* Vẫn căn giữa đoạn văn */
+        }
+        .signature {
+            text-align: right;
+            font-size: 1em; /* Giảm cỡ chữ chữ ký */
+            font-style: italic;
+            color: #4B5563; /* Màu xám đậm */
+            margin-top: 0.5rem;
+            width: 100%; /* Đảm bảo chữ ký nằm đúng vị trí */
+        }
+
+        /* Hiệu ứng pháo hoa khi mở */
+        .confetti-piece {
+            position: fixed;
+            font-size: 1.5em;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 25;
+            --final-x: 0px;
+            --final-y: 0px;
+        }
+
+        @keyframes shootConfetti {
+            0% {
+                transform: translate(0, 0);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--final-x), var(--final-y));
+                opacity: 0;
+            }
+        }
+
+        /* Điều chỉnh cho thiết bị di động */
+        @media (max-width: 600px) {
+            #neon-text {
+                font-size: 1.8em; /* Giảm cỡ chữ neon trên di động */
+            }
+            .envelope-container {
+                width: 90%; /* Chiều rộng phong bì trên di động */
+                height: 180px; /* Chiều cao phong bì trên di động */
+            }
+            .letter-content {
+                font-size: 0.75em; /* Giảm cỡ chữ trên di động */
+                padding: 10px; /* Giảm padding trên di động */
+            }
+            .confetti-piece {
+                font-size: 1.2em; /* Pháo hoa nhỏ hơn trên di động */
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <!-- Container for falling dots (now cakes and ribbons, gifts, and hearts) -->
+    <div id="falling-dots-container"></div>
+
+    <!-- Container for random background texts -->
+    <div id="random-texts-container"></div>
+
+    <!-- Dòng chữ HAPPY BIRTHDAY HONG HAE IN với hiệu ứng neon -->
+    <div id="neon-text">HAPPY BIRTHDAY HONG HAE IN</div>
+
+    <div id="envelope" class="envelope-container" onclick="openEnvelope()">
+        <div class="envelope-back"></div>
+        <div class="letter-content p-6 rounded-lg shadow-inner">
+            <!-- Nội dung bức thư sẽ được điền bằng JavaScript -->
+        </div>
+        <div class="envelope-front"></div>
+        <div class="envelope-flap"></div>
+    </div>
+
+    <script>
+        // Global array to store active random text elements and their positions
+        const activeRandomTexts = [];
+
+        // Helper function to check for collision between two rectangles
+        function isColliding(rect1, rect2) {
+            return rect1.left < rect2.right &&
+                   rect1.right > rect2.left &&
+                   rect1.top < rect2.bottom &&
+                   rect1.bottom > rect2.top;
+        }
+
+        // Function to generate a non-overlapping position
+        function getNonOverlappingPosition(elementWidth, elementHeight, existingRects, maxAttempts = 50) {
+            for (let i = 0; i < maxAttempts; i++) {
+                const newLeft = Math.random() * (window.innerWidth - elementWidth);
+                const newTop = Math.random() * (window.innerHeight - elementHeight);
+                const newRect = {
+                    left: newLeft,
+                    top: newTop,
+                    right: newLeft + elementWidth,
+                    bottom: newTop + elementHeight
+                };
+
+                let collision = false;
+                for (const existingRect of existingRects) {
+                    if (isColliding(newRect, existingRect)) {
+                        collision = true;
+                        break;
+                    }
+                }
+
+                if (!collision) {
+                    return { left: newLeft, top: newTop, rect: newRect };
+                }
+            }
+            // If no non-overlapping position found after maxAttempts, return a random one anyway
+            const fallbackLeft = Math.random() * (window.innerWidth - elementWidth);
+            const fallbackTop = Math.random() * (window.innerHeight - elementHeight);
+            return {
+                left: fallbackLeft,
+                top: fallbackTop,
+                rect: {
+                    left: fallbackLeft,
+                    top: fallbackTop,
+                    right: fallbackLeft + elementWidth,
+                    bottom: fallbackTop + elementHeight
+                }
+            };
+        }
+
+        // Lấy các phần tử cần thiết từ DOM
+        const envelope = document.getElementById('envelope');
+        const letterContent = document.querySelector('.letter-content');
+        const fallingDotsContainer = document.getElementById('falling-dots-container');
+        const neonText = document.getElementById('neon-text');
+        const randomTextsContainer = document.getElementById('random-texts-container');
+
+        // --- BẮT ĐẦU PHẦN TÙY CHỈNH LỜI NHẮN ---
+        // Bạn có thể thay đổi tên người nhận và người gửi ở đây
+        const recipient = "Chị Hong Hae In"; // Ví dụ: "Ngọc Anh"
+        const sender = "Park Bo Gum"; // Đã sửa thành "Park Bo Gum"
+
+        // Nội dung bức thư của bạn. Bạn có thể viết bất cứ điều gì ở đây!
+        // Sử dụng <p> cho các đoạn văn bản để định dạng tốt hơn.
+        const customMessage = `
+            <p class="message-content-paragraph">Kính gửi ${recipient},</p>
+            <p class="message-content-paragraph">
+                Em muốn gửi đến chị những lời chúc tốt đẹp nhất.
+                Mong rằng ngày nào của chị cũng tràn ngập niềm vui, tiếng cười và những điều bất ngờ thú vị.
+            </p>
+            <p class="message-content-paragraph">
+                Tuy bức thư này đến muộn nhưng mà em mong chị vui vẻ như ngày lúc đón tuổi mới ạ!
+            </p>
+            <p class="signature">Thân mến,<br>${sender}</p>
+        `;
+        // --- KẾT THÚC PHẦN TÙY CHỈNH LỜI NHẮN ---
+
+        // Gán nội dung tùy chỉnh vào lá thư
+        letterContent.innerHTML = customMessage;
+
+        // Hàm mở phong bì
+        function openEnvelope() {
+            const wasOpen = envelope.classList.contains('open');
+            envelope.classList.toggle('open'); // Thêm hoặc xóa class 'open' để kích hoạt hiệu ứng CSS
+
+            if (!wasOpen) { // Nếu phong bì đang mở
+                createConfettiEffect();
+                neonText.classList.add('fade-out-text'); // Thêm class để làm mờ chữ neon
+            } else { // Nếu phong bì đang đóng
+                neonText.classList.remove('fade-out-text'); // Xóa class để chữ neon hiện lại
+            }
+        }
+
+        // Hàm tạo hiệu ứng pháo hoa
+        function createConfettiEffect() {
+            const letterContentRect = letterContent.getBoundingClientRect(); // Lấy vị trí và kích thước của lá thư
+            if (!letterContentRect) return; // Đảm bảo lá thư tồn tại
+
+            const confettiEmojis = ['🎉', '🎊', '✨', '🎈', '❤️', '🌟', '💖', '🎁']; // Các biểu tượng pháo hoa
+            const numberOfConfetti = 50; // Số lượng mảnh pháo hoa
+
+            for (let i = 0; i < numberOfConfetti; i++) {
+                const confetti = document.createElement('span');
+                confetti.className = 'confetti-piece';
+                confetti.innerText = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+
+                // Quyết định ngẫu nhiên bắt đầu từ bên trái hoặc bên phải của lá thư
+                const startFromLeft = Math.random() > 0.5;
+                let initialLeftPx; // Vị trí tuyệt đối theo pixel
+                let finalTranslateX; // Dịch chuyển tương đối cho animation
+
+                if (startFromLeft) {
+                    initialLeftPx = letterContentRect.left + (Math.random() * 30); // Bắt đầu hơi bên trong mép trái
+                    finalTranslateX = (Math.random() * letterContentRect.width * 0.4) + 20; // Di chuyển sang phải, vào trong lá thư
+                } else {
+                    initialLeftPx = letterContentRect.right - (Math.random() * 30); // Bắt đầu hơi bên trong mép phải
+                    finalTranslateX = -(Math.random() * letterContentRect.width * 0.4) - 20; // Di chuyển sang trái, vào trong lá thư
+                }
+
+                // Bắt đầu pháo hoa ở bất kỳ đâu theo chiều dọc trong chiều cao của lá thư
+                const initialTopPx = letterContentRect.top + (Math.random() * letterContentRect.height);
+                // Dịch chuyển dọc ngẫu nhiên (lên hoặc xuống) so với điểm bắt đầu
+                const finalTranslateY = (Math.random() - 0.5) * letterContentRect.height * 0.6;
+
+                confetti.style.left = `${initialLeftPx}px`;
+                confetti.style.top = `${initialTopPx}px`;
+                confetti.style.fontSize = `${Math.random() * 1 + 1}em`; // Kích thước từ 1em đến 2em
+                confetti.style.opacity = '0'; // Ban đầu ẩn, sẽ hiện dần với animation
+
+                const animationDuration = Math.random() * 1.5 + 1.5; // Thời lượng animation từ 1.5s đến 3s
+                const animationDelay = Math.random() * 0.2; // Độ trễ nhỏ để tạo hiệu ứng xếp lớp
+
+                // Đặt biến CSS cho animation keyframe
+                confetti.style.setProperty('--final-x', `${finalTranslateX}px`);
+                confetti.style.setProperty('--final-y', `${finalTranslateY}px`);
+                confetti.style.animation = `shootConfetti ${animationDuration}s ease-out ${animationDelay}s forwards`;
+
+                document.body.appendChild(confetti);
+
+                // Xóa mảnh pháo hoa sau khi animation kết thúc để dọn dẹp DOM
+                setTimeout(() => {
+                    confetti.remove();
+                }, (animationDuration + animationDelay) * 1000);
+            }
+        }
+
+        // Hàm tạo các biểu tượng rơi (bánh kem, nơ hồng, hộp quà, bóng bay)
+        function createFallingDots() {
+            const fallingEmojis = ['🎂', '🎀', '🎁', '🎈']; // Biểu tượng bánh kem, nơ hồng, hộp quà, bóng bay
+            const numberOfEmojis = 100; // Số lượng biểu tượng rơi
+
+            for (let i = 0; i < numberOfEmojis; i++) {
+                const emoji = document.createElement('span'); // Sử dụng span cho emoji
+                emoji.className = 'falling-dot'; // Giữ nguyên class để áp dụng CSS animation
+                emoji.innerText = fallingEmojis[Math.floor(Math.random() * fallingEmojis.length)];
+
+                const size = Math.random() * 1.5 + 1; // Kích thước emoji từ 1em đến 2.5em
+                emoji.style.fontSize = `${size}em`;
+                emoji.style.left = `${Math.random() * 100}vw`; // Vị trí ngang ngẫu nhiên
+                emoji.style.animationDuration = `${Math.random() * 10 + 5}s`; // Thời lượng rơi từ 5s đến 15s
+                emoji.style.animationDelay = `${Math.random() * 5}s`; // Độ trễ ngẫu nhiên để tạo hiệu ứng không đồng bộ
+
+                fallingDotsContainer.appendChild(emoji);
+            }
+        }
+
+        // Hàm tạo các dòng chữ ngẫu nhiên
+        function createRandomTexts() {
+            const textContent = "HAPPY BIRTHDAY HONG HAE IN";
+            const numberOfTexts = 8; // Giảm số lượng dòng chữ ngẫu nhiên để giảm tần suất
+
+            for (let i = 0; i < numberOfTexts; i++) {
+                const randomText = document.createElement('span');
+                randomText.className = 'random-text-instance';
+                randomText.innerText = textContent;
+
+                const size = Math.random() * 0.8 + 0.8; // Kích thước từ 0.8em đến 1.6em (tăng kích cỡ)
+                randomText.style.fontSize = `${size}em`;
+                randomTextsContainer.appendChild(randomText); // Append first to get dimensions
+
+                const elementWidth = randomText.offsetWidth;
+                const elementHeight = randomText.offsetHeight;
+
+                // Get a non-overlapping position
+                const { left, top, rect } = getNonOverlappingPosition(elementWidth, elementHeight, activeRandomTexts.map(item => item.rect));
+
+                randomText.style.left = `${left}px`;
+                randomText.style.top = `${top}px`;
+                randomText.style.animationDuration = `${Math.random() * 12 + 8}s`; // Thời lượng animation từ 8s đến 20s (dài hơn)
+                randomText.style.animationDelay = `${Math.random() * 8}s`; // Độ trễ ngẫu nhiên (dài hơn)
+
+                // Store the element and its rectangle
+                activeRandomTexts.push({ element: randomText, rect: rect });
+
+                // Thêm event listener để cập nhật vị trí khi animation lặp lại
+                randomText.addEventListener('animationiteration', () => {
+                    // Remove old rectangle from tracking
+                    const oldIndex = activeRandomTexts.findIndex(item => item.element === randomText);
+                    if (oldIndex > -1) {
+                        activeRandomTexts.splice(oldIndex, 1);
+                    }
+
+                    // Get new non-overlapping position
+                    const { left: newLeft, top: newTop, rect: newRect } = getNonOverlappingPosition(elementWidth, elementHeight, activeRandomTexts.map(item => item.rect));
+
+                    randomText.style.left = `${newLeft}px`;
+                    randomText.style.top = `${newTop}px`;
+                    randomText.style.animationDuration = `${Math.random() * 12 + 8}s`;
+                    randomText.style.animationDelay = `${Math.random() * 8}s`;
+
+                    // Add new rectangle to tracking
+                    activeRandomTexts.push({ element: randomText, rect: newRect });
+                });
+            }
+        }
+
+
+        // Gọi hàm tạo hiệu ứng khi cửa sổ tải xong
+        window.onload = function() {
+            createFallingDots(); // Tạo các biểu tượng rơi (bánh kem, nơ hồng, hộp quà, bóng bay)
+            createRandomTexts(); // Tạo các dòng chữ ngẫu nhiên
+        };
+    </script>
+</body>
+</html>
