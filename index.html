@@ -278,7 +278,7 @@
             color: #333;
             text-align: left; /* Căn trái nội dung tổng thể */
             line-height: 1.5; /* Điều chỉnh line-height */
-            font-size: 0.85em; /* Giảm cỡ chữ */
+            font-size: clamp(1rem, 1.8vw, 1.2rem); /* Kích thước chữ linh hoạt */
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             display: flex; /* Sử dụng flexbox */
@@ -342,7 +342,7 @@
                 height: 180px; /* Chiều cao phong bì trên di động */
             }
             .letter-content {
-                font-size: 0.75em; /* Giảm cỡ chữ trên di động */
+                font-size: clamp(0.9rem, 2.5vw, 1rem); /* Điều chỉnh kích thước chữ trên di động */
                 padding: 10px; /* Giảm padding trên di động */
             }
             .confetti-piece {
