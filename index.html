@@ -375,56 +375,6 @@
     </div>
 
     <script>
-        // Global array to store active random text elements and their positions
-        const activeRandomTexts = [];
-
-        // Helper function to check for collision between two rectangles
-        function isColliding(rect1, rect2) {
-            return rect1.left < rect2.right &&
-                   rect1.right > rect2.left &&
-                   rect1.top < rect2.bottom &&
-                   rect1.bottom > rect2.top;
-        }
-
-        // Function to generate a non-overlapping position
-        function getNonOverlappingPosition(elementWidth, elementHeight, existingRects, maxAttempts = 50) {
-            for (let i = 0; i < maxAttempts; i++) {
-                const newLeft = Math.random() * (window.innerWidth - elementWidth);
-                const newTop = Math.random() * (window.innerHeight - elementHeight);
-                const newRect = {
-                    left: newLeft,
-                    top: newTop,
-                    right: newLeft + elementWidth,
-                    bottom: newTop + elementHeight
-                };
-
-                let collision = false;
-                for (const existingRect of existingRects) {
-                    if (isColliding(newRect, existingRect)) {
-                        collision = true;
-                        break;
-                    }
-                }
-
-                if (!collision) {
-                    return { left: newLeft, top: newTop, rect: newRect };
-                }
-            }
-            // If no non-overlapping position found after maxAttempts, return a random one anyway
-            const fallbackLeft = Math.random() * (window.innerWidth - elementWidth);
-            const fallbackTop = Math.random() * (window.innerHeight - elementHeight);
-            return {
-                left: fallbackLeft,
-                top: fallbackTop,
-                rect: {
-                    left: fallbackLeft,
-                    top: fallbackTop,
-                    right: fallbackLeft + elementWidth,
-                    bottom: fallbackTop + elementHeight
-                }
-            };
-        }
-
         // Lấy các phần tử cần thiết từ DOM
         const envelope = document.getElementById('envelope');
         const letterContent = document.querySelector('.letter-content');
@@ -546,7 +496,7 @@
         // Hàm tạo các dòng chữ ngẫu nhiên
         function createRandomTexts() {
             const textContent = "HAPPY BIRTHDAY HONG HAE IN";
-            const numberOfTexts = 8; // Giảm số lượng dòng chữ ngẫu nhiên để giảm tần suất
+            const numberOfTexts = 30; // Tăng số lượng dòng chữ ngẫu nhiên để tăng tần suất
 
             for (let i = 0; i < numberOfTexts; i++) {
                 const randomText = document.createElement('span');
@@ -557,38 +507,18 @@
                 randomText.style.fontSize = `${size}em`;
                 randomTextsContainer.appendChild(randomText); // Append first to get dimensions
 
-                const elementWidth = randomText.offsetWidth;
-                const elementHeight = randomText.offsetHeight;
-
-                // Get a non-overlapping position
-                const { left, top, rect } = getNonOverlappingPosition(elementWidth, elementHeight, activeRandomTexts.map(item => item.rect));
-
-                randomText.style.left = `${left}px`;
-                randomText.style.top = `${top}px`;
+                // Removed collision detection logic
+                randomText.style.left = `${Math.random() * 100}vw`; // Vị trí ngang ngẫu nhiên
+                randomText.style.top = `${Math.random() * 100}vh`; // Vị trí dọc ngẫu nhiên
                 randomText.style.animationDuration = `${Math.random() * 12 + 8}s`; // Thời lượng animation từ 8s đến 20s (dài hơn)
                 randomText.style.animationDelay = `${Math.random() * 8}s`; // Độ trễ ngẫu nhiên (dài hơn)
 
-                // Store the element and its rectangle
-                activeRandomTexts.push({ element: randomText, rect: rect });
-
                 // Thêm event listener để cập nhật vị trí khi animation lặp lại
                 randomText.addEventListener('animationiteration', () => {
-                    // Remove old rectangle from tracking
-                    const oldIndex = activeRandomTexts.findIndex(item => item.element === randomText);
-                    if (oldIndex > -1) {
-                        activeRandomTexts.splice(oldIndex, 1);
-                    }
-
-                    // Get new non-overlapping position
-                    const { left: newLeft, top: newTop, rect: newRect } = getNonOverlappingPosition(elementWidth, elementHeight, activeRandomTexts.map(item => item.rect));
-
-                    randomText.style.left = `${newLeft}px`;
-                    randomText.style.top = `${newTop}px`;
+                    randomText.style.left = `${Math.random() * 100}vw`;
+                    randomText.style.top = `${Math.random() * 100}vh`;
                     randomText.style.animationDuration = `${Math.random() * 12 + 8}s`;
                     randomText.style.animationDelay = `${Math.random() * 8}s`;
-
-                    // Add new rectangle to tracking
-                    activeRandomTexts.push({ element: randomText, rect: newRect });
                 });
             }
         }
