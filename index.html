@@ -32,7 +32,6 @@
         #neon-text {
             font-family: 'Dancing Script', cursive; /* Đã đổi font chữ thành nét bút máy */
             color: #fff; /* Màu chữ trắng */
-            font-size: 3em; /* Kích thước chữ lớn */
             font-weight: bold;
             text-align: center;
             margin-bottom: 30px; /* Khoảng cách với phong bì */
@@ -46,8 +45,13 @@
                 0 0 100px #FF007F;
             animation: neon-blink 2s infinite alternate; /* Animation nhấp nháy chậm */
             z-index: 15; /* Đảm bảo chữ nằm trên các hiệu ứng nền */
-            white-space: nowrap; /* Ngăn chữ bị ngắt dòng */
+            white-space: normal; /* Cho phép chữ xuống dòng */
             transition: opacity 1s ease-out; /* Thêm transition cho hiệu ứng mờ dần */
+            width: 90%; /* Chiếm 90% chiều rộng của phần tử cha */
+            max-width: 400px; /* Giới hạn chiều rộng tối đa để phù hợp với phong bì */
+            box-sizing: border-box; /* Đảm bảo padding không làm tràn width */
+            padding: 0 10px; /* Thêm padding ngang nhẹ */
+            font-size: clamp(1.5rem, 6vw, 3rem); /* Kích thước chữ linh hoạt */
         }
 
         /* Lớp để làm mờ chữ neon chính */
@@ -140,7 +144,6 @@
             font-family: 'Dancing Script', cursive;
             color: rgba(255, 255, 255, 0.3); /* Màu trắng mờ */
             font-size: 1.2em; /* Tăng kích thước chữ nhỏ */
-            /* Đã xóa text-shadow để bỏ hiệu ứng neon */
             white-space: nowrap;
             animation: fade-random-text linear infinite; /* Animation mờ dần vào/ra */
         }
@@ -157,6 +160,45 @@
             }
             100% {
                 opacity: 0; /* Mờ hoàn toàn */
+            }
+        }
+
+        /* CSS cho hiệu ứng chấm bi neon */
+        #neon-dots-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3; /* Nằm dưới các chữ nền và phong bì */
+            overflow: hidden;
+        }
+
+        .neon-dot {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.6); /* Màu trắng mờ */
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.5); /* Hiệu ứng neon glow */
+            animation: neon-dot-pulse linear infinite;
+        }
+
+        @keyframes neon-dot-pulse {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            25% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(0.8);
+            }
+            75% {
+                opacity: 0.8;
+                transform: scale(1);
             }
         }
 
@@ -294,9 +336,7 @@
 
         /* Điều chỉnh cho thiết bị di động */
         @media (max-width: 600px) {
-            #neon-text {
-                font-size: 1.8em; /* Giảm cỡ chữ neon trên di động */
-            }
+            /* Đã bỏ font-size riêng cho #neon-text ở đây vì clamp() đã xử lý */
             .envelope-container {
                 width: 90%; /* Chiều rộng phong bì trên di động */
                 height: 180px; /* Chiều cao phong bì trên di động */
@@ -319,8 +359,11 @@
     <!-- Container for random background texts -->
     <div id="random-texts-container"></div>
 
+    <!-- Container for neon dots -->
+    <div id="neon-dots-container"></div>
+
     <!-- Dòng chữ HAPPY BIRTHDAY HONG HAE IN với hiệu ứng neon -->
-    <div id="neon-text">HAPPY BIRTHDAY HONG HAE IN</div>
+    <div id="neon-text">HAPPY BIRTHDAY <br>HONG HAE IN</div>
 
     <div id="envelope" class="envelope-container" onclick="openEnvelope()">
         <div class="envelope-back"></div>
@@ -388,6 +431,8 @@
         const fallingDotsContainer = document.getElementById('falling-dots-container');
         const neonText = document.getElementById('neon-text');
         const randomTextsContainer = document.getElementById('random-texts-container');
+        const neonDotsContainer = document.getElementById('neon-dots-container');
+
 
         // --- BẮT ĐẦU PHẦN TÙY CHỈNH LỜI NHẮN ---
         // Bạn có thể thay đổi tên người nhận và người gửi ở đây
@@ -548,11 +593,32 @@
             }
         }
 
+        // Hàm tạo các chấm bi neon
+        function createNeonDots() {
+            const numberOfDots = 50; // Số lượng chấm bi neon
+
+            for (let i = 0; i < numberOfDots; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'neon-dot';
+
+                const size = Math.random() * 5 + 2; // Kích thước từ 2px đến 7px
+                dot.style.width = `${size}px`;
+                dot.style.height = `${size}px`;
+                dot.style.left = `${Math.random() * 100}vw`; // Vị trí ngang ngẫu nhiên
+                dot.style.top = `${Math.random() * 100}vh`; // Vị trí dọc ngẫu nhiên
+                dot.style.animationDuration = `${Math.random() * 4 + 2}s`; // Thời lượng animation từ 2s đến 6s
+                dot.style.animationDelay = `${Math.random() * 5}s`; // Độ trễ ngẫu nhiên
+
+                neonDotsContainer.appendChild(dot);
+            }
+        }
+
 
         // Gọi hàm tạo hiệu ứng khi cửa sổ tải xong
         window.onload = function() {
             createFallingDots(); // Tạo các biểu tượng rơi (bánh kem, nơ hồng, hộp quà, bóng bay)
             createRandomTexts(); // Tạo các dòng chữ ngẫu nhiên
+            createNeonDots(); // Tạo các chấm bi trắng neon
         };
     </script>
 </body>
